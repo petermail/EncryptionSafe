@@ -23,7 +23,7 @@
             <Label Content="Iterations: " />
             <Label Content="{Binding IterationsText}" ToolTip="Security of the password, count of repeated pasword hashing, higher number is better." />
         </WrapPanel>
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Records}" AutoGenerateColumns="False">
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Records}" AutoGenerateColumns="False" SelectionMode="Single" SelectionUnit="Cell">
             <DataGrid.Columns>
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
