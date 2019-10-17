@@ -38,6 +38,9 @@
     <ApplicationIcon>lock.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -60,6 +63,7 @@
     </ApplicationDefinition>
     <Compile Include="Converters\DecryptStringConverter.cs" />
     <Compile Include="Models\EncryptedRecordDataModel.cs" />
+    <Compile Include="Models\OpenRecordDataModel.cs" />
     <Compile Include="Views\SafeViewer.xaml.cs">
       <DependentUpon>SafeViewer.xaml</DependentUpon>
     </Compile>
@@ -98,6 +102,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -108,6 +113,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="lock.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EncryptionSafe\EncryptionSafe.csproj">
+      <Project>{9F084FFC-C234-4981-A917-93B8FA0F639A}</Project>
+      <Name>EncryptionSafe</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

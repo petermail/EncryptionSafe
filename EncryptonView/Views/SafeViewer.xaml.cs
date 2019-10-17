@@ -1,5 +1,6 @@
 ﻿using EncryptionSafe.Encryption;
 using EncryptonView.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -104,6 +105,7 @@ namespace EncryptonView.Views
             }
         }
         public ObservableCollection<EncryptedRecordDataModel<object>> Records { get; set; }
+        public List<OpenRecordDataModel<object>> OpenRecords { get; set; }
         public string Display { get; set; }
         public string Key { get; set; }
         public string Secret { get; set; }
@@ -122,6 +124,7 @@ namespace EncryptonView.Views
         
         public SafeViewerViewModel()
         {
+            OpenRecords = new List<OpenRecordDataModel<object>>();
             Records = new ObservableCollection<EncryptedRecordDataModel<object>>();
             ActionButtonText = ACTION_DECRYPT;
             EncryptedDictionary = EncryptedDictionary.LoadOrCreate("secrets.json");
@@ -145,6 +148,17 @@ namespace EncryptonView.Views
                     if (keySecret.Length > 1 && keySecret[1] == "key")
                     {
                         Records.Add(new EncryptedRecordDataModel<object>(EncryptedDictionary, null, null, keySecret[0]));
+                    }
+                }
+                LoadOpenRecords("open_data.json");
+                // TO-DO: pair encrypted records with open records
+                foreach (var openRecord in OpenRecords)
+                {
+                    var encrypted = Records.FirstOrDefault(x => x.PairingKey == openRecord.PairingKey);
+                    if (encrypted != null)
+                    {
+                        encrypted.OpenData = openRecord.OpenData;
+                        encrypted.Display = openRecord.Display;
                     }
                 }
             }
@@ -175,6 +189,7 @@ namespace EncryptonView.Views
                                 if (wasAnyNotEncryptd)
                                 {
                                     EncryptedDictionary.Save("secrets.json");
+                                    SaveOpenRecords("open_data.json");
                                 }
                                 IsUnlocked = true;
                                 ClearPassword();
@@ -211,6 +226,8 @@ namespace EncryptonView.Views
             {
                 EncryptedDictionary.EncryptAll();
                 EncryptedDictionary.Save("secrets.json");
+                OpenRecords.Add(new OpenRecordDataModel<object>() { Display = Display, PairingKey = encrypted.PairingKey });
+                SaveOpenRecords("open_data.json");
             }
 
             Display = Key = Secret = null;
@@ -218,6 +235,28 @@ namespace EncryptonView.Views
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(value));
             }
+        }
+
+        public void SaveOpenRecords(string filename)
+        {
+            var text = JsonConvert.SerializeObject(OpenRecords);
+            using (var sw = new System.IO.StreamWriter(filename))
+            {
+                sw.WriteLine(text);
+                sw.Close();
+            }
+        }
+        public void LoadOpenRecords(string filename)
+        {
+            if (System.IO.File.Exists(filename))
+            {
+                using (var sr = new System.IO.StreamReader(filename))
+                {
+                    var text = sr.ReadToEnd();
+                    OpenRecords = JsonConvert.DeserializeObject<List<OpenRecordDataModel<object>>>(text);
+                }
+            }
+            if (OpenRecords == null) { OpenRecords = new List<OpenRecordDataModel<object>>(); }
         }
     }
 }
