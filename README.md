@@ -11,6 +11,7 @@ The solution contains two project. One is console application that only demonstr
 ## WHYs?
 1. We need to know how many cycles of hasing your password we can do in a minute. It also means that this number is necessary for decryption of your data.
 2. Hashing a password before using it will create new much stronger password which is significantly longer with random distribution of different characters and digits. It is impossible for any attacker to guess the correct hash because for SHA256 there is about 10^77 combinations. The weak point is your original password and it's security can be increased by repeated hashing. This way any attacker will be able to try only 1 candidate for your password instead of many thousands or millions. 
+3. 
 4. Since each record has its own password, even same data will have different encrypted form.
 
 ## How safe is this process?
@@ -18,6 +19,8 @@ The solution contains two project. One is console application that only demonstr
 * You can check security of a regular password at sites like https://howsecureismypassword.net/
 
 ## How to use it?
+You can can [download the exe file](https://github.com/petermail/EncryptionSafe/raw/master/Info/EncryptonView.exe) for testing purposes but you should always build your own application from source code after you inspect the code or at least check the GitHub [issue page](https://github.com/petermail/EncryptionSafe/issues).
+
 1. Wait until the initialization is finished. It should take about one minute.
 2. Set your secure password and click button "Encrypt".
 	* Your password hash is calculating, it will take one minute to finish then the application will unlock.
