@@ -220,7 +220,7 @@ namespace EncryptonView.Views
 
         public void AddNewRecord()
         {
-            var encrypted = EncryptedRecordDataModel<object>.Create(EncryptedDictionary, Display, Key, Secret, null);
+            var encrypted = EncryptedRecordDataModel<object>.Create(EncryptedDictionary, Display, Key ?? string.Empty, Secret ?? string.Empty, null);
             Records.Add(encrypted);
             if (EncryptedDictionary.KeyPassword != null)
             {
