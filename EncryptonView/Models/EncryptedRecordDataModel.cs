@@ -39,6 +39,21 @@ namespace EncryptonView.Models
             PairingKey = pairingKey;
         }
 
+        public string GetDecryptedKey()
+        {
+            _encrypted.Dictionary[PairingKey + "_key"].Decrypt<string>(_encrypted.EncryptionService, _encrypted.KeyPassword);
+            var result = Key;
+            _encrypted.Dictionary[PairingKey + "_key"].ComputePartEncryption(_encrypted.EncryptionService, _encrypted.KeyPassword);
+            return result;
+        }
+        public string GetDecryptedSecret()
+        {
+            _encrypted.Dictionary[PairingKey + "_secret"].Decrypt<string>(_encrypted.EncryptionService, _encrypted.KeyPassword);
+            var result = Secret;
+            _encrypted.Dictionary[PairingKey + "_secret"].ComputePartEncryption(_encrypted.EncryptionService, _encrypted.KeyPassword);
+            return result;
+        }
+
         public void Decrypt()
         {
             _encrypted.Dictionary[PairingKey + "_key"].Decrypt<string>(_encrypted.EncryptionService, _encrypted.KeyPassword);
@@ -68,6 +83,12 @@ namespace EncryptonView.Models
             encrypted.Dictionary.Add(newPairingKey + "_secret", new EncryptedNode() { Original = secret });
             result.OpenData = openData;
             return result;
+        }
+
+        public void Remove()
+        {
+            _encrypted.Dictionary.Remove(PairingKey + "_key");
+            _encrypted.Dictionary.Remove(PairingKey + "_secret");
         }
 
         public void NotifyEncryptionChange()

@@ -64,6 +64,9 @@
     <Compile Include="Converters\DecryptStringConverter.cs" />
     <Compile Include="Models\EncryptedRecordDataModel.cs" />
     <Compile Include="Models\OpenRecordDataModel.cs" />
+    <Compile Include="Views\SafeViewerCryptoKeys.xaml.cs">
+      <DependentUpon>SafeViewerCryptoKeys.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SafeViewer.xaml.cs">
       <DependentUpon>SafeViewer.xaml</DependentUpon>
     </Compile>
@@ -79,6 +82,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\SafeViewerCryptoKeys.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\SafeViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

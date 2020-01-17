@@ -1,0 +1,88 @@
+﻿<UserControl x:Class="EncryptonView.Views.SafeViewerCryptoKeys"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:EncryptonView.Views"
+             xmlns:converters="clr-namespace:EncryptonView.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Name="Me">
+    <UserControl.Resources>
+        <converters:DecryptStringConverter x:Key="DecryptStringConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <WrapPanel>
+            <Label Content="Password: " />
+            <PasswordBox Name="PasswordBox1" Width="150" />
+            <Button Content="{Binding ActionButtonText}" IsEnabled="{Binding IsActionEnabled}" Width="100" Click="ButtonActiveStateAction_Click" />
+            <Label Content="Iterations: " />
+            <Label Content="{Binding IterationsText}" ToolTip="Security of the password, count of repeated pasword hashing, higher number is better." />
+        </WrapPanel>
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Records}" AutoGenerateColumns="False" SelectionMode="Single" SelectionUnit="Cell">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Delete" Click="ButtonDeleteRecord_Click" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding Path=EncryptedState, Converter={StaticResource DecryptStringConverter}}" Click="ButtonDecryptRecord_Click" IsEnabled="{Binding DataContext.IsUnlocked, ElementName=Me}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Exchange" Binding="{Binding Display}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Key" Binding="{Binding Key}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Secret" Binding="{Binding Secret}" IsReadOnly="True" />
+                <DataGridCheckBoxColumn Header="Can trade" Binding="{Binding OpenData.CanTrade}" IsReadOnly="True" />
+                <DataGridCheckBoxColumn Header="Can withdraw" Binding="{Binding OpenData.CanWithdraw}" IsReadOnly="True" />
+                <DataGridTextColumn Header="IPs" Binding="{Binding OpenData.IPs}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Expire" Binding="{Binding OpenData.ExpireDate, StringFormat=dd.MM.yyyy}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Passphrase" Binding="{Binding OpenData.Passphrase}" IsReadOnly="True" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <Grid Grid.Row="2" IsEnabled="{Binding IsUnlocked}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <WrapPanel>
+                <WrapPanel>
+                    <Label Content="Exchange: " />
+                    <ComboBox ItemsSource="{Binding Exchanges}" SelectedItem="{Binding Display}" Width="100" />
+                </WrapPanel>
+                <WrapPanel>
+                    <Label Content="Key: " />
+                    <TextBox Text="{Binding Key}" Width="150" />
+                </WrapPanel>
+                <WrapPanel>
+                    <Label Content="Secret: " />
+                    <TextBox Text="{Binding Secret}" Width="150" />
+                </WrapPanel>
+                <WrapPanel>
+                    <Label Content="Passphrase: " />
+                    <TextBox Text="{Binding Passphrase}" Width="100" />
+                </WrapPanel>
+                <CheckBox Content="Can trade" IsChecked="{Binding CanTrade}" VerticalAlignment="Center" Margin="4" />
+                <CheckBox Content="Can withdraw" IsChecked="{Binding CanWithdraw}" VerticalAlignment="Center" />
+                <WrapPanel>
+                    <Label Content="IPs" />
+                    <TextBox Text="{Binding IPs}" Width="100" ToolTip="More IPs are split by comma" />
+                </WrapPanel>
+                <WrapPanel>
+                    <CheckBox Content="Expire date" IsChecked="{Binding UseExpireDate}" VerticalAlignment="Center" Margin="4" />
+                    <DatePicker SelectedDate="{Binding ExpireDate}" />
+                </WrapPanel>
+            </WrapPanel>
+            <Button Grid.Column="2" Content="Add" Click="ButtonAdd_Click" Width="50" />
+        </Grid>
+    </Grid>
+</UserControl>
