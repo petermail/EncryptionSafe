@@ -63,8 +63,11 @@ namespace EncryptonView.Views
 
         private void ButtonDeleteRecord_Click(object sender, RoutedEventArgs e)
         {
-            var row = ((FrameworkElement)sender).DataContext as EncryptedRecordDataModel<OpenCryptoKeysData>;
-            ViewModel.DeleteRecord(row);
+            if (MessageBox.Show("Are you sure you want to delete selected row?", "Delete", MessageBoxButton.YesNoCancel) == MessageBoxResult.Yes)
+            {
+                var row = ((FrameworkElement)sender).DataContext as EncryptedRecordDataModel<OpenCryptoKeysData>;
+                ViewModel.DeleteRecord(row);
+            }
         }
     }
 
@@ -213,6 +216,18 @@ namespace EncryptonView.Views
             }
             record.Remove();
             EncryptedDictionary.Save(FilenameSecret);
+        }
+
+        public bool IsAtLeastOneDecrypted()
+        {
+            bool result = false;
+            foreach (var record in Records)
+            {
+                string key = record.Key;
+                result = key != record.GetDecryptedKey();
+                if (result) { break; }
+            }
+            return result;
         }
 
         public void DoActiveStateAction(SecureString password)
