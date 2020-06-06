@@ -259,9 +259,8 @@ namespace EncryptonView.Views
                                 }
                                 IsUnlocked = true;
                                 ClearPassword();
-                                OnDecryption();
                             }
-                        });
+                        }).ContinueWith(x => OnDecryption());
                     }
                     break;
                 case ACTION_STOP:
