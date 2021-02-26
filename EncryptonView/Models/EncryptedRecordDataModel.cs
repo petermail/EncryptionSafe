@@ -26,6 +26,16 @@ namespace EncryptonView.Models
 
         private EncryptedDictionary _encrypted;
 
+        public EncryptedRecordDataModel(string originalKey, string originalSecret, string display, T openData, string pairingKey)
+        {
+            PairingKey = pairingKey;
+            OpenData = openData;
+            Display = display;
+            _encrypted = new EncryptedDictionary();
+            _encrypted.Dictionary.Add(pairingKey + "_key", new EncryptedNode() { Original = originalKey });
+            _encrypted.Dictionary.Add(pairingKey + "_secret", new EncryptedNode() { Original = originalSecret });
+
+        }
         public EncryptedRecordDataModel(EncryptedDictionary encrypted)
         {
             _encrypted = encrypted;
@@ -68,6 +78,10 @@ namespace EncryptonView.Models
             NotifyEncryptionChange();
         }
 
+        public static EncryptedRecordDataModel<T> Create(string display, string key, string secret, T openData)
+        {
+            return Create(new EncryptedDictionary(), display, key, secret, openData);
+        }
         public static EncryptedRecordDataModel<T> Create(EncryptedDictionary encrypted, string display, string key, string secret, T openData)
         {
             var result = new EncryptedRecordDataModel<T>(encrypted);

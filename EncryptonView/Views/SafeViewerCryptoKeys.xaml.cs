@@ -246,19 +246,19 @@ namespace EncryptonView.Views
                             if (ActionButtonText == ACTION_STOP && localTaskId == _taskId)
                             {
                                 ActionButtonText = ACTION_ENCRYPT;
-                                var wasAnyNotEncryptd = EncryptedDictionary.Dictionary.Values.Any(x => x.Encrypted == null);
+                                var wasAnyNotEncrypted = EncryptedDictionary.Dictionary.Values.Any(x => x.Encrypted == null);
                                 EncryptedDictionary.DecryptPart();
                                 foreach (var record in Records)
                                 {
                                     record.NotifyEncryptionChange();
                                 }
-                                if (wasAnyNotEncryptd)
+                                if (wasAnyNotEncrypted)
                                 {
                                     EncryptedDictionary.Save(FilenameSecret);
                                     SaveOpenRecords(FilenameOpen);
                                 }
                                 IsUnlocked = true;
-                                ClearPassword();
+                                ClearPassword?.Invoke();
                             }
                         }).ContinueWith(x => OnDecryption());
                     }
