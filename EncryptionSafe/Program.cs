@@ -11,11 +11,16 @@ namespace EncryptionSafe
 {
     public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
+        {
+            Task.Run(async () => await MainAsync(args));
+        }
+
+        public static async Task MainAsync(string[] args)
         {
             Console.WriteLine("Hello, this is simple encryption application that ilustrates how to use the encryption classes.");
             string filename = "encrypt.json";
-            var encrypted = EncryptedDictionary.LoadOrCreate(filename);
+            var encrypted = await EncryptedDictionary.LoadOrCreate(filename);
             var fakeO = new FakeObject(encrypted);
 
             if (encrypted.EncryptionService.IsInitializationRunning)

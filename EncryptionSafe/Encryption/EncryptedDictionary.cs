@@ -35,7 +35,7 @@ namespace EncryptionSafe.Encryption
         /// <summary>
         /// Initialize encryption service if needed, the password initialization is done in a special thread and will take one minute
         /// </summary>
-        public void Initialize()
+        public async Task InitializeAsync()
         {
             if (EncryptionService == null)
             {
@@ -43,7 +43,7 @@ namespace EncryptionSafe.Encryption
             }
             if (EncryptionService.IterationsPerMinute == null)
             {
-                EncryptionService.Initialize();
+                await EncryptionService.InitializeAsync();
             }
         }
 
@@ -134,6 +134,19 @@ namespace EncryptionSafe.Encryption
             }
         }
         /// <summary>
+        /// Decrypt password into hash; it will take one minute
+        /// </summary>
+        /// <param name="password">Password to use for decryption</param>
+        /// <param name="isStillValid">Function to indicate if calculated password is still valid and should be used</param>
+        public void DecryptKey(byte[] password, Func<bool> isStillValid = null)
+        {
+            var keyPassword = EncryptionService.GetKeyInBytes(password);
+            if (isStillValid == null || isStillValid())
+            {
+                KeyPassword = keyPassword;
+            }
+        }
+        /// <summary>
         /// Partially decrypt all data; if password wasn't converted into hash, it will take one minute
         /// </summary>
         /// <param name="password">Password to use for encryption; not needed if hash was already created before</param>
@@ -202,7 +215,7 @@ namespace EncryptionSafe.Encryption
         /// </summary>
         /// <param name="filename">Filename of json encrypted dictionary</param>
         /// <returns>Encrypted dictionary</returns>
-        public static EncryptedDictionary LoadOrCreate(string filename)
+        public static async Task<EncryptedDictionary> LoadOrCreate(string filename)
         {
             EncryptedDictionary result = null;
             if (System.IO.File.Exists(filename))
@@ -213,16 +226,28 @@ namespace EncryptionSafe.Encryption
                     result = JsonConvert.DeserializeObject<EncryptedDictionary>(text);
                     if (result != null && result.EncryptionService.IterationsPerMinute == null)
                     {
-                        result.Initialize();
+                        await result.InitializeAsync();
                     }
                 }
             }
             if (result == null)
             {
                 result = new EncryptedDictionary();
-                result.Initialize();
+                await result.InitializeAsync();
             }
             return result;
+        }
+        public static EncryptedDictionary Load(string filename)
+        {
+            if (System.IO.File.Exists(filename))
+            {
+                using (var sr = new System.IO.StreamReader(filename))
+                {
+                    string text = sr.ReadToEnd();
+                    return JsonConvert.DeserializeObject<EncryptedDictionary>(text);
+                }
+            }
+            return null;
         }
     }
 

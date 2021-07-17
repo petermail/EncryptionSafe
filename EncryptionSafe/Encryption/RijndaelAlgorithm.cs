@@ -32,6 +32,14 @@ namespace EncryptionSafe.Encryption
             return keyBytes;
         }
 
+        public static byte[] GetKeyInBytes(byte[] passPhrase, byte[] saltValueBytes, string hashAlgorithm, int passwordIterations, int keySize)
+        {
+            Rfc2898DeriveBytes password = new Rfc2898DeriveBytes(passPhrase, saltValueBytes, passwordIterations);
+
+            byte[] keyBytes = password.GetBytes(keySize / 8);
+            return keyBytes;
+        }
+
         public static string Encrypt(string plainText, byte[] initVectorBytes, byte[] keyBytes)
         {
             // Convert strings into byte arrays.

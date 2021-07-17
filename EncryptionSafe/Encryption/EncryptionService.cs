@@ -37,22 +37,22 @@ namespace EncryptionSafe.Encryption
                 if (_instance == null)
                 {
                     _instance = new EncryptionService();
-                    _instance.Initialize();
+                    _instance.InitializeAsync().RunSynchronously();
                 }
                 return _instance;
             }
         }
 
-        public async void Initialize()
+        public async Task InitializeAsync()
         {
             if (IterationsPerMinute == null)
             {
                 IsInitializationRunning = true;
-                await Task.Run(() =>
+                await Task.Run(async () =>
                 {
                     try
                     {
-                        System.Threading.Thread.Sleep(60000); // Wait a minute because initialization will usually start with start of the application that also starts lot of other tasks
+                        await Task.Delay(60000); // Wait a minute because initialization will usually start with start of the application that also starts lot of other tasks
                         IterationsPerMinute = CountIterationsPerMinute();
                         PasswordIterations = IterationsPerMinute.Value;
                     }
@@ -67,6 +67,10 @@ namespace EncryptionSafe.Encryption
         }
 
         public byte[] GetKeyInBytes(string password)
+        {
+            return RijndaelAlgorithm.GetKeyInBytes(password, SaltValue, _hashAlgorithm, PasswordIterations, _keySize);
+        }
+        public byte[] GetKeyInBytes(byte[] password)
         {
             return RijndaelAlgorithm.GetKeyInBytes(password, SaltValue, _hashAlgorithm, PasswordIterations, _keySize);
         }
@@ -171,7 +175,7 @@ namespace EncryptionSafe.Encryption
             {
                 string text = sr.ReadToEnd();
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject<EncryptionService>(filename);
-                result.Initialize();
+                Task.Run(() => result.InitializeAsync());
                 return result;
             }
         }
