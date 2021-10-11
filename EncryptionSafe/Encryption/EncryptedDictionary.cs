@@ -249,6 +249,13 @@ namespace EncryptionSafe.Encryption
             }
             return null;
         }
+        public static EncryptedDictionary Create(int iterations)
+        {
+            var result = new EncryptedDictionary();
+            result.EncryptionService = new EncryptionService();
+            result.EncryptionService.IterationsPerMinute = iterations;
+            return result;
+        }
     }
 
     /// <summary>
