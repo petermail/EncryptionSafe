@@ -104,11 +104,25 @@ namespace EncryptonView.Views
                 PropertyChanged(this, new PropertyChangedEventArgs(nameof(IsUnlocked)));
             }
         }
+        private bool _isOnlyDecryptedData = true;
+        public bool IsOnlyDecryptedData { get { return _isOnlyDecryptedData; } 
+            set { 
+                _isOnlyDecryptedData = value; 
+                if (value)
+                {
+                    FilterDecryptedRecords();
+                } else
+                {
+                    ClearFilter();
+                }
+            } 
+        }
         public ObservableCollection<EncryptedRecordDataModel<object>> Records { get; set; }
         public List<OpenRecordDataModel<object>> OpenRecords { get; set; }
         public string Display { get; set; }
         public string Key { get; set; }
         public string Secret { get; set; }
+        private List<EncryptedRecordDataModel<object>> _hiddenRecords = new List<EncryptedRecordDataModel<object>>();
 
         public Action ClearPassword { get; set; }
 
@@ -127,7 +141,7 @@ namespace EncryptonView.Views
             OpenRecords = new List<OpenRecordDataModel<object>>();
             Records = new ObservableCollection<EncryptedRecordDataModel<object>>();
             ActionButtonText = ACTION_DECRYPT;
-            EncryptedDictionary = EncryptedDictionary.LoadOrCreate("secrets.json");
+            EncryptedDictionary = EncryptedDictionary.LoadOrCreate("secrets.json").Result;
             if (EncryptedDictionary.EncryptionService.IsInitializationRunning)
             {
                 ActionButtonText = ACTION_WAIT;
@@ -161,7 +175,44 @@ namespace EncryptonView.Views
                         encrypted.Display = openRecord.Display;
                     }
                 }
+                if (IsOnlyDecryptedData)
+                {
+                    FilterDecryptedRecords();
+                }
             }
+        }
+
+        public void FilterDecryptedRecords()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                int hiddenRecordCount = _hiddenRecords.Count;
+                for (int i = Records.Count - 1; i >= 0; --i)
+                {
+                    var record = Records[i];
+                    if (record.EncryptedState == EncryptedType.FullyEncrypted)
+                    {
+                        _hiddenRecords.Add(record);
+                        Records.RemoveAt(i);
+                    }
+                }
+                for (int i = hiddenRecordCount - 1; i >= 0; --i)
+                {
+                    if (_hiddenRecords[i].EncryptedState != EncryptedType.FullyEncrypted)
+                    {
+                        Records.Add(_hiddenRecords[i]);
+                        _hiddenRecords.RemoveAt(i);
+                    }
+                }
+            });
+        }
+        public void ClearFilter()
+        {
+            foreach (var item in _hiddenRecords)
+            {
+                Records.Add(item);
+            }
+            _hiddenRecords.Clear();
         }
 
         public void DoActiveStateAction(SecureString password)
@@ -186,6 +237,10 @@ namespace EncryptonView.Views
                                 {
                                     record.NotifyEncryptionChange();
                                 }
+                                foreach (var record in _hiddenRecords)
+                                {
+                                    record.NotifyEncryptionChange();
+                                }
                                 if (wasAnyNotEncryptd)
                                 {
                                     EncryptedDictionary.Save("secrets.json");
@@ -193,6 +248,10 @@ namespace EncryptonView.Views
                                 }
                                 IsUnlocked = true;
                                 ClearPassword();
+                            }
+                            if (IsOnlyDecryptedData)
+                            {
+                                FilterDecryptedRecords();
                             }
                         });
                     }
@@ -211,6 +270,10 @@ namespace EncryptonView.Views
                     EncryptedDictionary.ClearKeyAndPartialEncryption();
                     IsUnlocked = false;
                     foreach (var record in Records)
+                    {
+                        record.NotifyEncryptionChange();
+                    }
+                    foreach (var record in _hiddenRecords)
                     {
                         record.NotifyEncryptionChange();
                     }

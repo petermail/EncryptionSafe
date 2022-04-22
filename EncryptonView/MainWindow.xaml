@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:EncryptonView"
         xmlns:views="clr-namespace:EncryptonView.Views"
         mc:Ignorable="d"
-        Title="EncryptionSafe" Height="450" Width="620">
+        Title="EncryptionSafe 1.1" Height="450" Width="820">
     <Grid>
         <views:SafeViewer />
     </Grid>

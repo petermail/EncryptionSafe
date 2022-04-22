@@ -22,6 +22,7 @@
             <Button Content="{Binding ActionButtonText}" IsEnabled="{Binding IsActionEnabled}" Width="100" Click="ButtonActiveStateAction_Click" />
             <Label Content="Iterations: " />
             <Label Content="{Binding IterationsText}" ToolTip="Security of the password, count of repeated pasword hashing, higher number is better." />
+            <CheckBox Content="Show only decrypted" VerticalAlignment="Center" IsChecked="{Binding IsOnlyDecryptedData}" Margin="10 0" />
         </WrapPanel>
         <DataGrid Grid.Row="1" ItemsSource="{Binding Records}" AutoGenerateColumns="False" SelectionMode="Single" SelectionUnit="Cell">
             <DataGrid.Columns>
@@ -33,7 +34,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Display" Binding="{Binding Display}" IsReadOnly="True" />
-                <DataGridTextColumn Header="Key" Binding="{Binding Key}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Key" Binding="{Binding Key}" IsReadOnly="True" Width="200" />
                 <DataGridTextColumn Header="Secret" Binding="{Binding Secret}" IsReadOnly="True" />
                 <DataGridTextColumn Header="Other" Binding="{Binding OpenDataText}" IsReadOnly="True" />
             </DataGrid.Columns>
@@ -46,7 +47,7 @@
             <WrapPanel>
                 <WrapPanel>
                     <Label Content="Display: " />
-                    <TextBox Text="{Binding Display}" Width="100" />
+                    <TextBox Text="{Binding Display}" Width="120" />
                 </WrapPanel>
                 <WrapPanel>
                     <Label Content="Key: " />

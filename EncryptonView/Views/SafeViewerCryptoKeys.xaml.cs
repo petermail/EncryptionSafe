@@ -149,7 +149,7 @@ namespace EncryptonView.Views
             OpenRecords = new List<OpenRecordDataModel<OpenCryptoKeysData>>();
             Records = new ObservableCollection<EncryptedRecordDataModel<OpenCryptoKeysData>>();
             ActionButtonText = ACTION_DECRYPT;
-            EncryptedDictionary = EncryptedDictionary.LoadOrCreate(FilenameSecret);
+            EncryptedDictionary = EncryptedDictionary.LoadOrCreate(FilenameSecret).Result;
             if (EncryptedDictionary.EncryptionService.IsInitializationRunning)
             {
                 ActionButtonText = ACTION_WAIT;

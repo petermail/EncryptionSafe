@@ -4,8 +4,8 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{468FFDA9-6B6F-4A7E-A30F-2635B85989F4}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{E5253862-08D0-413A-9959-390088EA617D}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>EncryptionView</RootNamespace>
     <AssemblyName>EncryptionView</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
