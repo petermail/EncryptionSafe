@@ -1,4 +1,5 @@
 ﻿using EncryptionSafe.Encryption;
+using EncryptionView.Models;
 using EncryptonView.Models;
 using Newtonsoft.Json;
 using System;
@@ -135,13 +136,18 @@ namespace EncryptonView.Views
 
         private Task _encryptionTask;
         private int _taskId = 0;
+
+        private string _filenameOfFull = null;
         
         public SafeViewerViewModel()
         {
             OpenRecords = new List<OpenRecordDataModel<object>>();
             Records = new ObservableCollection<EncryptedRecordDataModel<object>>();
             ActionButtonText = ACTION_DECRYPT;
-            EncryptedDictionary = EncryptedDictionary.LoadOrCreate("secrets.json").Result;
+            var cmd = Environment.GetCommandLineArgs();
+            if (cmd.Length > 1) { _filenameOfFull = cmd[1]; }
+            LoadFull();
+            //EncryptedDictionary = EncryptedDictionary.LoadOrCreate("secrets.json").Result;
             if (EncryptedDictionary.EncryptionService.IsInitializationRunning)
             {
                 ActionButtonText = ACTION_WAIT;
@@ -151,11 +157,12 @@ namespace EncryptonView.Views
                     ActionButtonText = ACTION_DECRYPT;
                     IsActionEnabled = true;
                     Iterations = EncryptedDictionary.EncryptionService.PasswordIterations;
-                    EncryptedDictionary.Save("secrets.json");
+                    //EncryptedDictionary.Save("secrets.json");
+                    SaveFull(true);
                 };
             } else
             {
-                Iterations = EncryptedDictionary.EncryptionService.PasswordIterations;
+                /*Iterations = EncryptedDictionary.EncryptionService.PasswordIterations;
                 foreach (var value in EncryptedDictionary.Dictionary)
                 {
                     var keySecret = value.Key.Split('_');
@@ -174,7 +181,7 @@ namespace EncryptonView.Views
                         encrypted.OpenData = openRecord.OpenData;
                         encrypted.Display = openRecord.Display;
                     }
-                }
+                }*/
                 if (IsOnlyDecryptedData)
                 {
                     FilterDecryptedRecords();
@@ -287,10 +294,8 @@ namespace EncryptonView.Views
             Records.Add(encrypted);
             if (EncryptedDictionary.KeyPassword != null)
             {
-                EncryptedDictionary.EncryptAll();
-                EncryptedDictionary.Save("secrets.json");
                 OpenRecords.Add(new OpenRecordDataModel<object>() { Display = Display, PairingKey = encrypted.PairingKey });
-                SaveOpenRecords("open_data.json");
+                SaveFull();
             }
 
             Display = Key = Secret = null;
@@ -300,7 +305,99 @@ namespace EncryptonView.Views
             }
         }
 
-        public void SaveOpenRecords(string filename)
+        public void SaveFull(bool isFirstSave = false)
+        {
+            if (_filenameOfFull != null)
+            {
+                var fullModel = new DictionaryAndDataModel<object>() { EncryptedDictionary = EncryptedDictionary, OpenRecords = OpenRecords };
+                if (isFirstSave)
+                {
+                    fullModel.SaveWithoutEncrypt(_filenameOfFull);
+                }
+                else
+                {
+                    fullModel.Save(_filenameOfFull);
+                }
+            } else
+            {
+                if (!isFirstSave)
+                {
+                    EncryptedDictionary.EncryptAll();
+                }
+                EncryptedDictionary.Save("secrets.json");
+                SaveOpenRecords("open_data.json");
+            }
+        }
+        public void LoadFull()
+        {
+            if (_filenameOfFull != null)
+            {
+                var fullModel = new DictionaryAndDataModel<object>();
+                fullModel.Load(_filenameOfFull);
+                EncryptedDictionary = fullModel.EncryptedDictionary;
+                OpenRecords = fullModel.OpenRecords;
+                if (EncryptedDictionary == null)
+                {
+                    EncryptedDictionary = new EncryptedDictionary();
+                    EncryptedDictionary.EncryptionService = new EncryptionService();
+                    EncryptedDictionary.EncryptionService.IsInitializationRunning = true;
+                    Task.Run(async () => await EncryptedDictionary.InitializeAsync());
+                }
+                else
+                {
+                    Iterations = EncryptedDictionary.EncryptionService.PasswordIterations;
+                }
+                foreach (var value in EncryptedDictionary.Dictionary)
+                {
+                    var keySecret = value.Key.Split('_');
+                    if (keySecret.Length > 1 && keySecret[1] == "key")
+                    {
+                        Records.Add(new EncryptedRecordDataModel<object>(EncryptedDictionary, null, null, keySecret[0]));
+                    }
+                }
+                foreach (var openRecord in OpenRecords)
+                {
+                    var encrypted = Records.FirstOrDefault(x => x.PairingKey == openRecord.PairingKey);
+                    if (encrypted != null)
+                    {
+                        encrypted.OpenData = openRecord.OpenData;
+                        encrypted.Display = openRecord.Display;
+                    }
+                }
+            } else
+            {
+                EncryptedDictionary = EncryptedDictionary.Load("secrets.json");
+                if (EncryptedDictionary == null)
+                {
+                    EncryptedDictionary = new EncryptedDictionary();
+                    EncryptedDictionary.EncryptionService = new EncryptionService();
+                    EncryptedDictionary.EncryptionService.IsInitializationRunning = true;
+                    Task.Run(async () => await EncryptedDictionary.InitializeAsync());
+                } else
+                {
+                    foreach (var value in EncryptedDictionary.Dictionary)
+                    {
+                        var keySecret = value.Key.Split('_');
+                        if (keySecret.Length > 1 && keySecret[1] == "key")
+                        {
+                            Records.Add(new EncryptedRecordDataModel<object>(EncryptedDictionary, null, null, keySecret[0]));
+                        }
+                    }
+                    LoadOpenRecords("open_data.json");
+                    foreach (var openRecord in OpenRecords)
+                    {
+                        var encrypted = Records.FirstOrDefault(x => x.PairingKey == openRecord.PairingKey);
+                        if (encrypted != null)
+                        {
+                            encrypted.OpenData = openRecord.OpenData;
+                            encrypted.Display = openRecord.Display;
+                        }
+                    }
+                    Iterations = EncryptedDictionary.EncryptionService.PasswordIterations;
+                }
+            }
+        }
+        private void SaveOpenRecords(string filename)
         {
             var text = JsonConvert.SerializeObject(OpenRecords);
             using (var sw = new System.IO.StreamWriter(filename))
@@ -309,7 +406,7 @@ namespace EncryptonView.Views
                 sw.Close();
             }
         }
-        public void LoadOpenRecords(string filename)
+        private void LoadOpenRecords(string filename)
         {
             if (System.IO.File.Exists(filename))
             {

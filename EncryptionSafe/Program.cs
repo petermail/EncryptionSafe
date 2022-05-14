@@ -13,7 +13,7 @@ namespace EncryptionSafe
     {
         public static void Main(string[] args)
         {
-            Task.Run(async () => await MainAsync(args));
+            MainAsync(args).GetAwaiter().GetResult();
         }
 
         public static async Task MainAsync(string[] args)

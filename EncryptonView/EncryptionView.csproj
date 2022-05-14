@@ -65,6 +65,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\DecryptStringConverter.cs" />
+    <Compile Include="Models\DictionaryAndDataModel.cs" />
     <Compile Include="Models\EncryptedRecordDataModel.cs" />
     <Compile Include="Models\OpenRecordDataModel.cs" />
     <Compile Include="Views\SafeViewerCryptoKeys.xaml.cs">
