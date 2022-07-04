@@ -27,7 +27,7 @@ namespace EncryptionTest
         {
             get
             {
-                return _encrypted.Dictionary[Key].Decrypt<string>(_encrypted.EncryptionService, _encrypted._keyPassword);
+                return _encrypted.Dictionary[Key].Decrypt<string>(_encrypted.EncryptionService, _encrypted.KeyPassword);
             }
             set
             {

@@ -25,7 +25,7 @@ namespace EncryptionSafe.Encryption
         /// Hash of password
         /// </summary>
         [JsonIgnore]
-        public byte[] _keyPassword { get; private set; }
+        public byte[] KeyPassword { get; private set; }
 
         public EncryptedDictionary()
         {
@@ -83,8 +83,8 @@ namespace EncryptionSafe.Encryption
         }
         public void EncryptAll()
         {
-            if (_keyPassword == null) { throw new Exception("Missing key password for encryption."); }
-            EncryptAll(_keyPassword);
+            if (KeyPassword == null) { throw new Exception("Missing key password for encryption."); }
+            EncryptAll(KeyPassword);
         }
         private void EncryptAll(byte[] keyPassword)
         {
@@ -120,7 +120,7 @@ namespace EncryptionSafe.Encryption
             {
                 if (dict.Value.Encrypted == null)
                 {
-                    dict.Value.ComputeFullEncryption(EncryptionService, _keyPassword);
+                    dict.Value.ComputeFullEncryption(EncryptionService, KeyPassword);
                 }
                 if (dict.Value.Encrypted == null)
                 {
@@ -128,7 +128,7 @@ namespace EncryptionSafe.Encryption
                 }
                 dict.Value.EncryptedPart = null;
             }
-            _keyPassword = null;
+            KeyPassword = null;
         }
         /// <summary>
         /// Decrypt password into hash; it will take one minute
@@ -140,7 +140,7 @@ namespace EncryptionSafe.Encryption
             var keyPassword = EncryptionService.GetKeyInBytes(password);
             if (isStillValid == null || isStillValid())
             {
-                _keyPassword = keyPassword;
+                KeyPassword = keyPassword;
             }
         }
         /// <summary>
@@ -153,7 +153,7 @@ namespace EncryptionSafe.Encryption
             var keyPassword = EncryptionService.GetKeyInBytes(password);
             if (isStillValid == null || isStillValid())
             {
-                _keyPassword = keyPassword;
+                KeyPassword = keyPassword;
             }
         }
         /// <summary>
@@ -162,12 +162,12 @@ namespace EncryptionSafe.Encryption
         /// <param name="password">Password to use for encryption; not needed if hash was already created before</param>
         public void DecryptPart(string password = null)
         {
-            if (_keyPassword == null) { DecryptKey(password); }
+            if (KeyPassword == null) { DecryptKey(password); }
             foreach (var dict in Dictionary)
             {
                 if (dict.Value.Encrypted != null)
                 {
-                    dict.Value.DecryptPart(EncryptionService, _keyPassword);
+                    dict.Value.DecryptPart(EncryptionService, KeyPassword);
                 }
             }
         }
@@ -178,26 +178,26 @@ namespace EncryptionSafe.Encryption
         /// <param name="original">Original value to encrypt</param>
         public void AddEncryptedRecord<T>(string key, T original)
         {
-            if (_keyPassword == null)
+            if (KeyPassword == null)
             {
                 throw new Exception("Can not encrypt newly added record.");
             }
             var newNode = new EncryptedNode() { Original = original };
-            newNode.ComputeFullEncryption(EncryptionService, _keyPassword);
+            newNode.ComputeFullEncryption(EncryptionService, KeyPassword);
             Dictionary.Add(key, newNode);
         }
 
         public T GetDecryptedRecord<T>(string key, Func<string, T> convert = null)
         {
-            if (_keyPassword == null)
+            if (KeyPassword == null)
             {
                 throw new Exception("Can not decrypt record");
             }
             var first = Dictionary.FirstOrDefault(x => x.Key == key);
             if (first.Key == key) {
-                first.Value.DecryptPart(EncryptionService, _keyPassword);
-                var res = first.Value.Decrypt(EncryptionService, _keyPassword, convert);
-                first.Value.ComputeFullEncryption(EncryptionService, _keyPassword);
+                first.Value.DecryptPart(EncryptionService, KeyPassword);
+                var res = first.Value.Decrypt(EncryptionService, KeyPassword, convert);
+                first.Value.ComputeFullEncryption(EncryptionService, KeyPassword);
                 return res;
             } else { return default(T); }
         }
@@ -211,12 +211,12 @@ namespace EncryptionSafe.Encryption
             {
                 if (value.Encrypted == null)
                 {
-                    value.ComputeFullEncryption(EncryptionService, _keyPassword);
+                    value.ComputeFullEncryption(EncryptionService, KeyPassword);
                 }
                 value.EncryptedPart = null;
                 value.Original = null;
             }
-            _keyPassword = null;
+            KeyPassword = null;
         }
         /// <summary>
         /// Save data encrypted data if everything is in encrypted format only
