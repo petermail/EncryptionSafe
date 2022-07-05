@@ -122,6 +122,13 @@ namespace EncryptionSafe.Encryption
             //return Encoding.ASCII.GetString(randomBytes);
             return randomBytes;
         }
+        public string GenerateRandomCryptographicKeyString(int keyLength)
+        {
+            RNGCryptoServiceProvider rngCryptoServiceProvider = new RNGCryptoServiceProvider();
+            byte[] randomBytes = new byte[keyLength];
+            rngCryptoServiceProvider.GetBytes(randomBytes);
+            return Convert.ToBase64String(randomBytes);
+        }
 
         private long PasswordHashingInMilliseconds(int iterations)
         {

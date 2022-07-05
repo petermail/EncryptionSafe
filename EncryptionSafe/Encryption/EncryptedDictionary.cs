@@ -47,6 +47,11 @@ namespace EncryptionSafe.Encryption
             }
         }
 
+        public void EncryptAll(byte[] password, Action callback = null)
+        {
+            EncryptAllPrivate(() => EncryptionService.GetKeyInBytes(password), callback);
+        }
+
         /// <summary>
         /// Encrypt all data in the dictionary
         /// </summary>
@@ -54,11 +59,16 @@ namespace EncryptionSafe.Encryption
         /// <param name="callback">Callback to run after initialization (if needed) and encryption is finished</param>
         public void EncryptAll(string password, Action callback = null)
         {
-            if (EncryptionService.IterationsPerMinute == null) {
+            EncryptAllPrivate(() => EncryptionService.GetKeyInBytes(password), callback);
+        }
+        private void EncryptAllPrivate(Func<byte[]> getKeyInBytes, Action callback = null)
+        {
+            if (EncryptionService.IterationsPerMinute == null)
+            {
                 if (EncryptionService.IsInitializationRunning)
                 {
                     EncryptionService.InitializationCallback = () => {
-                        var keyPassword = EncryptionService.GetKeyInBytes(password);
+                        var keyPassword = getKeyInBytes();
                         EncryptAll(keyPassword);
                         callback?.Invoke();
                     };
@@ -66,7 +76,7 @@ namespace EncryptionSafe.Encryption
             }
             else
             {
-                var keyPassword = EncryptionService.GetKeyInBytes(password);
+                var keyPassword = getKeyInBytes();
                 EncryptAll(keyPassword);
                 callback?.Invoke();
             }
@@ -199,6 +209,21 @@ namespace EncryptionSafe.Encryption
             var newNode = new EncryptedNode() { Original = original };
             newNode.ComputeFullEncryption(EncryptionService, KeyPassword);
             Dictionary.Add(key, newNode);
+        }
+
+        public T GetDecryptedRecord<T>(string key, Func<string, T> convert = null)
+        {
+            if (KeyPassword == null)
+            {
+                throw new Exception("Can not decrypt record");
+            }
+            var first = Dictionary.FirstOrDefault(x => x.Key == key);
+            if (first.Key == key) {
+                first.Value.DecryptPart(EncryptionService, KeyPassword);
+                var res = first.Value.Decrypt(EncryptionService, KeyPassword, convert);
+                first.Value.ComputeFullEncryption(EncryptionService, KeyPassword);
+                return res;
+            } else { return default(T); }
         }
 
         /// <summary>
