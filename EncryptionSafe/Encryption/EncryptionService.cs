@@ -108,6 +108,11 @@ namespace EncryptionSafe.Encryption
             }
         }
 
+        // May duplicate
+        public string GenerateRandomCryptographicKeyString(int keyLength)
+        {
+            return Convert.ToBase64String(GenerateRandomCryptographicKey(keyLength));
+        }
         public byte[] GenerateRandomCryptographicKey(int keyLength)
         {
             RNGCryptoServiceProvider rngCryptoServiceProvider = new RNGCryptoServiceProvider();
