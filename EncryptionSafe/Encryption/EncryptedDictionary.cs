@@ -131,29 +131,6 @@ namespace EncryptionSafe.Encryption
             KeyPassword = null;
         }
 
-        // May be duplicate or wrong
-        public T GetDecryptedRecord<T>(string key, Func<string, T> select)
-        {
-            foreach (var dict in Dictionary)
-            {
-                if (dict.Key == key)
-                {
-                    if (dict.Value.EncryptionState == EncryptedType.FullyEncrypted)
-                    {
-                        dict.Value.DecryptPart(EncryptionService, KeyPassword);
-                    }
-                    if (dict.Value.EncryptionState == EncryptedType.EncryptedPartialy)
-                    {
-                        return dict.Value.Decrypt<T>(EncryptionService, KeyPassword, select);
-                    }
-                    else
-                    {
-                        return select(dict.Value.Original.ToString());
-                    }
-                }
-            }
-            return default(T);
-        }
         /// <summary>
         /// Decrypt password into hash; it will take one minute
         /// </summary>
@@ -382,7 +359,7 @@ namespace EncryptionSafe.Encryption
                 EncryptedPart = encryptionService.Encrypt(newKeyPassword, Original.ToString());
 
                 var check = encryptionService.Decrypt(newKeyPassword, EncryptedPart);
-                if (check != Original.ToString()) { throw new Exception("Can not be decrypted."); }
+                if (check != Original?.ToString()) { throw new Exception("Can not be decrypted."); }
 
                 Original = null;
             }
