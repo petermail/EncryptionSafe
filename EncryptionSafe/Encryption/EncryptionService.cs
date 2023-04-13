@@ -164,6 +164,22 @@ namespace EncryptionSafe.Encryption
             return (int)processedIterations;
         }
 
+        public static string AppendHashFile(string password, string filename)
+        {
+            return password + ";" + HashFile(filename);
+        }
+        public static string HashFile(string filename)
+        {
+            using (var stream = System.IO.File.OpenRead(filename))
+            {
+                using (var sha256 = SHA256.Create())
+                {
+                    var bytes = sha256.ComputeHash(stream);
+                    return Convert.ToBase64String(bytes);
+                }
+            }
+        }
+
         public void Save(string filename)
         {
             var text = Newtonsoft.Json.JsonConvert.SerializeObject(this);

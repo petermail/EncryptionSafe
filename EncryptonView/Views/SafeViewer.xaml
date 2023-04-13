@@ -16,14 +16,21 @@
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <WrapPanel>
-            <Label Content="Password: " />
-            <PasswordBox Name="PasswordBox1" Width="150" />
-            <Button Content="{Binding ActionButtonText}" IsEnabled="{Binding IsActionEnabled}" Width="100" Click="ButtonActiveStateAction_Click" />
-            <Label Content="Iterations: " />
-            <Label Content="{Binding IterationsText}" ToolTip="Security of the password, count of repeated pasword hashing, higher number is better." />
-            <CheckBox Content="Show only decrypted" VerticalAlignment="Center" IsChecked="{Binding IsOnlyDecryptedData}" Margin="10 0" />
-        </WrapPanel>
+        <DockPanel>
+            <WrapPanel DockPanel.Dock="Right">
+                <Label Content="File password:" />
+                <TextBox Width="80" ToolTip="Hash of this file is appended as part of the password, clear it to ignore" />
+                <Button Content=" ... " Click="ButtonGetFile_Click" />
+            </WrapPanel>
+            <WrapPanel>
+                <Label Content="Password: " />
+                <PasswordBox Name="PasswordBox1" Width="150" />
+                <Button Content="{Binding ActionButtonText}" IsEnabled="{Binding IsActionEnabled}" Width="100" Click="ButtonActiveStateAction_Click" />
+                <Label Content="Iterations: " />
+                <Label Content="{Binding IterationsText}" ToolTip="Security of the password, count of repeated pasword hashing, higher number is better." />
+                <CheckBox Content="Show only decrypted" VerticalAlignment="Center" IsChecked="{Binding IsOnlyDecryptedData}" Margin="10 0" />
+            </WrapPanel>
+        </DockPanel>
         <DataGrid Grid.Row="1" ItemsSource="{Binding Records}" AutoGenerateColumns="False" SelectionMode="Single" SelectionUnit="Cell">
             <DataGrid.Columns>
                 <DataGridTemplateColumn>

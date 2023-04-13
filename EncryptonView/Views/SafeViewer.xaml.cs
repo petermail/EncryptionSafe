@@ -1,6 +1,7 @@
 ﻿using EncryptionSafe.Encryption;
 using EncryptionView.Models;
 using EncryptonView.Models;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -41,7 +42,7 @@ namespace EncryptonView.Views
 
         private void ButtonActiveStateAction_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.DoActiveStateAction(PasswordBox1.SecurePassword);
+            ViewModel.DoActiveStateAction(PasswordBox1.SecurePassword, ViewModel.FilePassword);
         }
 
         private void ButtonAdd_Click(object sender, RoutedEventArgs e)
@@ -60,6 +61,11 @@ namespace EncryptonView.Views
             {
                 row.Decrypt();
             }
+        }
+
+        private void ButtonGetFile_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.LoadFilePassword();
         }
     }
 
@@ -117,6 +123,14 @@ namespace EncryptonView.Views
                     ClearFilter();
                 }
             } 
+        }
+        private string _filePassword;
+        public string FilePassword { get { return _filePassword; }
+            set
+            {
+                _filePassword = value;
+                PropertyChanged(this, new PropertyChangedEventArgs(nameof(FilePassword)));
+            }
         }
         public ObservableCollection<EncryptedRecordDataModel<object>> Records { get; set; }
         public List<OpenRecordDataModel<object>> OpenRecords { get; set; }
@@ -222,7 +236,7 @@ namespace EncryptonView.Views
             _hiddenRecords.Clear();
         }
 
-        public void DoActiveStateAction(SecureString password)
+        public void DoActiveStateAction(SecureString password, string filePassword)
         {
             switch (ActionButtonText)
             {
@@ -234,6 +248,13 @@ namespace EncryptonView.Views
                         _encryptionTask = Task.Run(() =>
                         {
                             var pwd = new System.Net.NetworkCredential(string.Empty, password).Password;
+                            if (!string.IsNullOrWhiteSpace(filePassword))
+                            {
+                                if (System.IO.File.Exists(filePassword))
+                                {
+                                    pwd = EncryptionService.AppendHashFile(pwd, filePassword);
+                                } else { MessageBox.Show("File for password hash doesn't exist."); }
+                            }
                             EncryptedDictionary.DecryptKey(pwd, () => localTaskId == _taskId);
                             if (ActionButtonText == ACTION_STOP && localTaskId == _taskId)
                             {
@@ -417,6 +438,16 @@ namespace EncryptonView.Views
                 }
             }
             if (OpenRecords == null) { OpenRecords = new List<OpenRecordDataModel<object>>(); }
+        }
+
+        public void LoadFilePassword()
+        {
+            var ofd = new OpenFileDialog();
+            ofd.Filter = "All files (*.*)|*.*";
+            if (ofd.ShowDialog() ?? false)
+            {
+                FilePassword = ofd.FileName;
+            }
         }
     }
 }
