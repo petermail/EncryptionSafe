@@ -14,58 +14,69 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <DockPanel>
-            <WrapPanel DockPanel.Dock="Right">
-                <Label Content="File password:" />
-                <TextBox Width="80" ToolTip="Hash of this file is appended as part of the password, clear it to ignore" />
-                <Button Content=" ... " Click="ButtonGetFile_Click" />
-            </WrapPanel>
-            <WrapPanel>
-                <Label Content="Password: " />
-                <PasswordBox Name="PasswordBox1" Width="150" />
-                <Button Content="{Binding ActionButtonText}" IsEnabled="{Binding IsActionEnabled}" Width="100" Click="ButtonActiveStateAction_Click" />
-                <Label Content="Iterations: " />
-                <Label Content="{Binding IterationsText}" ToolTip="Security of the password, count of repeated pasword hashing, higher number is better." />
-                <CheckBox Content="Show only decrypted" VerticalAlignment="Center" IsChecked="{Binding IsOnlyDecryptedData}" Margin="10 0" />
-            </WrapPanel>
-        </DockPanel>
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Records}" AutoGenerateColumns="False" SelectionMode="Single" SelectionUnit="Cell">
-            <DataGrid.Columns>
-                <DataGridTemplateColumn>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Content="{Binding Path=EncryptedState, Converter={StaticResource DecryptStringConverter}}" Click="ButtonDecryptRecord_Click" IsEnabled="{Binding DataContext.IsUnlocked, ElementName=Me}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Display" Binding="{Binding Display}" IsReadOnly="True" />
-                <DataGridTextColumn Header="Key" Binding="{Binding Key}" IsReadOnly="True" Width="200" />
-                <DataGridTextColumn Header="Secret" Binding="{Binding Secret}" IsReadOnly="True" />
-                <DataGridTextColumn Header="Other" Binding="{Binding OpenDataText}" IsReadOnly="True" />
-            </DataGrid.Columns>
-        </DataGrid>
-        <Grid Grid.Row="2" IsEnabled="{Binding IsUnlocked}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <WrapPanel>
-                <WrapPanel>
-                    <Label Content="Display: " />
-                    <TextBox Text="{Binding Display}" Width="120" />
+        <Menu>
+            <MenuItem Header="File">
+                <MenuItem Header="Open..." Click="MenuItemOpen_Click" />
+            </MenuItem>
+        </Menu>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <DockPanel>
+                <WrapPanel DockPanel.Dock="Right">
+                    <Label Content="File password:" />
+                    <TextBox Width="80" ToolTip="Hash of this file is appended as part of the password, clear it to ignore" />
+                    <Button Content=" ... " Click="ButtonGetFile_Click" />
                 </WrapPanel>
                 <WrapPanel>
-                    <Label Content="Key: " />
-                    <TextBox Text="{Binding Key}" Width="150" />
+                    <Label Content="Password: " />
+                    <PasswordBox Name="PasswordBox1" Width="150" />
+                    <Button Content="{Binding ActionButtonText}" IsEnabled="{Binding IsActionEnabled}" Width="100" Click="ButtonActiveStateAction_Click" />
+                    <Label Content="Iterations: " />
+                    <Label Content="{Binding IterationsText}" ToolTip="Security of the password, count of repeated pasword hashing, higher number is better." />
+                    <CheckBox Content="Show only decrypted" VerticalAlignment="Center" IsChecked="{Binding IsOnlyDecryptedData}" Margin="10 0" />
                 </WrapPanel>
+            </DockPanel>
+            <DataGrid Grid.Row="1" ItemsSource="{Binding Records}" AutoGenerateColumns="False" SelectionMode="Single" SelectionUnit="Cell" PreviewKeyDown="DataGrid_KeyDown">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding Path=EncryptedState, Converter={StaticResource DecryptStringConverter}}" Click="ButtonDecryptRecord_Click" IsEnabled="{Binding DataContext.IsUnlocked, ElementName=Me}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Display" Binding="{Binding Display}" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Key" Binding="{Binding Key}" IsReadOnly="True" Width="200" />
+                    <DataGridTextColumn Header="Secret" Binding="{Binding Secret}" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Other" Binding="{Binding OpenDataText}" IsReadOnly="True" />
+                </DataGrid.Columns>
+            </DataGrid>
+            <Grid Grid.Row="2" IsEnabled="{Binding IsUnlocked}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
                 <WrapPanel>
-                    <Label Content="Secret: " />
-                    <TextBox Text="{Binding Secret}" Width="150" />
+                    <WrapPanel>
+                        <Label Content="Display: " />
+                        <TextBox Text="{Binding Display}" Width="120" />
+                    </WrapPanel>
+                    <WrapPanel>
+                        <Label Content="Key: " />
+                        <TextBox Text="{Binding Key}" Width="150" />
+                    </WrapPanel>
+                    <WrapPanel>
+                        <Label Content="Secret: " />
+                        <TextBox Text="{Binding Secret}" Width="150" />
+                    </WrapPanel>
                 </WrapPanel>
-            </WrapPanel>
-            <Button Grid.Column="2" Content="Add" Click="ButtonAdd_Click" Width="50" />
+                <Button Grid.Column="2" Content="Add" Click="ButtonAdd_Click" Width="50" />
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

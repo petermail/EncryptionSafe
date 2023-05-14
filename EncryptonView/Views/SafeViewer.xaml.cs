@@ -67,6 +67,23 @@ namespace EncryptonView.Views
         {
             ViewModel.LoadFilePassword();
         }
+
+        private void MenuItemOpen_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.OpenFile();
+        }
+
+        private void DataGrid_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                var selected = ((DataGrid)sender).SelectedCells.FirstOrDefault().Item as EncryptedRecordDataModel<object>;
+                if (selected != null)
+                {
+                    ViewModel.DeleteItem(selected);
+                }
+            }
+        }
     }
 
     public class SafeViewerViewModel : INotifyPropertyChanged
@@ -211,7 +228,7 @@ namespace EncryptonView.Views
                 for (int i = Records.Count - 1; i >= 0; --i)
                 {
                     var record = Records[i];
-                    if (record.EncryptedState == EncryptedType.FullyEncrypted)
+                    if (record.EncryptedState == EncryptedType.FullyEncrypted || record.IsDeleted == true)
                     {
                         _hiddenRecords.Add(record);
                         Records.RemoveAt(i);
@@ -219,7 +236,7 @@ namespace EncryptonView.Views
                 }
                 for (int i = hiddenRecordCount - 1; i >= 0; --i)
                 {
-                    if (_hiddenRecords[i].EncryptedState != EncryptedType.FullyEncrypted)
+                    if (_hiddenRecords[i].EncryptedState != EncryptedType.FullyEncrypted || _hiddenRecords[i].IsDeleted == true)
                     {
                         Records.Add(_hiddenRecords[i]);
                         _hiddenRecords.RemoveAt(i);
@@ -438,6 +455,29 @@ namespace EncryptonView.Views
                 }
             }
             if (OpenRecords == null) { OpenRecords = new List<OpenRecordDataModel<object>>(); }
+        }
+
+        public void DeleteItem(EncryptedRecordDataModel<object> item)
+        {
+            if (MessageBox.Show(string.Format("Ary you sure you want to delete selected item [{0}]?", item.Display), 
+                "Delete item", MessageBoxButton.YesNoCancel, MessageBoxImage.Question)
+                == MessageBoxResult.Yes)
+            {
+                item.IsDeleted = true;
+                FilterDecryptedRecords();
+            }
+        }
+
+        public void OpenFile()
+        {
+            var ofd = new OpenFileDialog();
+            ofd.Filter = "Json (*.json)|*.json|All files (*.*)|*.*";
+            if (ofd.ShowDialog() ?? false)
+            {
+                _filenameOfFull = ofd.FileName;
+                LoadFull(); // We can load only data encrypted into one file
+                // Open_data, secret - format of two files is not supported, it would be problem when savings
+            }
         }
 
         public void LoadFilePassword()
