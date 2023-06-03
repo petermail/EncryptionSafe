@@ -314,6 +314,8 @@ namespace EncryptionSafe.Encryption
         /// </summary>
         public byte[] Salt { get; set; }
 
+        public bool? IsDeleted { get; set; } = false;
+
         /// <summary>
         /// Encryption state of the data; i.e. what is the most decrypted data present
         /// </summary>

@@ -236,7 +236,7 @@ namespace EncryptonView.Views
                 }
                 for (int i = hiddenRecordCount - 1; i >= 0; --i)
                 {
-                    if (_hiddenRecords[i].EncryptedState != EncryptedType.FullyEncrypted || _hiddenRecords[i].IsDeleted == true)
+                    if (_hiddenRecords[i].EncryptedState != EncryptedType.FullyEncrypted && !(_hiddenRecords[i].IsDeleted ?? false))
                     {
                         Records.Add(_hiddenRecords[i]);
                         _hiddenRecords.RemoveAt(i);
@@ -246,11 +246,11 @@ namespace EncryptonView.Views
         }
         public void ClearFilter()
         {
-            foreach (var item in _hiddenRecords)
+            foreach (var item in _hiddenRecords.Where(x => !(x.IsDeleted ?? false)))
             {
                 Records.Add(item);
             }
-            _hiddenRecords.Clear();
+            _hiddenRecords.RemoveAll(x => !(x.IsDeleted ?? false));
         }
 
         public void DoActiveStateAction(SecureString password, string filePassword)
@@ -390,7 +390,14 @@ namespace EncryptonView.Views
                     var keySecret = value.Key.Split('_');
                     if (keySecret.Length > 1 && keySecret[1] == "key")
                     {
-                        Records.Add(new EncryptedRecordDataModel<object>(EncryptedDictionary, null, null, keySecret[0]));
+                        if (value.Value.IsDeleted ?? false)
+                        {
+                            _hiddenRecords.Add(new EncryptedRecordDataModel<object>(EncryptedDictionary, null, null, keySecret[0]));
+                        }
+                        else
+                        {
+                            Records.Add(new EncryptedRecordDataModel<object>(EncryptedDictionary, null, null, keySecret[0]));
+                        }
                     }
                 }
                 foreach (var openRecord in OpenRecords)
@@ -418,13 +425,21 @@ namespace EncryptonView.Views
                         var keySecret = value.Key.Split('_');
                         if (keySecret.Length > 1 && keySecret[1] == "key")
                         {
-                            Records.Add(new EncryptedRecordDataModel<object>(EncryptedDictionary, null, null, keySecret[0]));
+                            if (value.Value.IsDeleted ?? false)
+                            {
+                                _hiddenRecords.Add(new EncryptedRecordDataModel<object>(EncryptedDictionary, null, null, keySecret[0]));
+                            }
+                            else
+                            {
+                                Records.Add(new EncryptedRecordDataModel<object>(EncryptedDictionary, null, null, keySecret[0]));
+                            }
                         }
                     }
                     LoadOpenRecords("open_data.json");
                     foreach (var openRecord in OpenRecords)
                     {
-                        var encrypted = Records.FirstOrDefault(x => x.PairingKey == openRecord.PairingKey);
+                        var encrypted = Records.FirstOrDefault(x => x.PairingKey == openRecord.PairingKey)
+                            ?? _hiddenRecords.FirstOrDefault(x => x.PairingKey == openRecord.PairingKey);
                         if (encrypted != null)
                         {
                             encrypted.OpenData = openRecord.OpenData;
@@ -464,6 +479,7 @@ namespace EncryptonView.Views
                 == MessageBoxResult.Yes)
             {
                 item.IsDeleted = true;
+                SaveFull();
                 FilterDecryptedRecords();
             }
         }

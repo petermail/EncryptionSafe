@@ -22,7 +22,7 @@ namespace EncryptonView.Models
         /// </summary>
         public string PairingKey { get; private set; }
 
-        public bool? IsDeleted { get; set; }
+        public bool? IsDeleted { get { return _encrypted.Dictionary[PairingKey + "_key"].IsDeleted; } set { _encrypted.Dictionary[PairingKey + "_key"].IsDeleted = value; } }
 
         public EncryptedType EncryptedState { get { return _encrypted.Dictionary[PairingKey + "_key"].EncryptionState; } }
 
@@ -36,7 +36,6 @@ namespace EncryptonView.Models
             _encrypted = new EncryptedDictionary();
             _encrypted.Dictionary.Add(pairingKey + "_key", new EncryptedNode() { Original = originalKey });
             _encrypted.Dictionary.Add(pairingKey + "_secret", new EncryptedNode() { Original = originalSecret });
-            IsDeleted = false;
         }
         public EncryptedRecordDataModel(EncryptedDictionary encrypted)
         {
